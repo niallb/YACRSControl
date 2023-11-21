@@ -12,6 +12,7 @@ namespace YACRScontrol
     public partial class loginForm : Form
     {
         private string configPath;
+        private int ticks;
 
         public loginForm()
         {
@@ -24,38 +25,48 @@ namespace YACRScontrol
             else
             {
                 URLEdt.Text = Properties.Settings.Default.ServerURL;// "http://localhost/yacrs/yacrs/";
-                if (URLEdt.Text.Length > 14)
+            }
+            if (URLEdt.Text.Length > 14)
+            {
+                string outurl;
+                messageEdt.Text = YACRSSession.Instance.SetAndCheckURL(URLEdt.Text, out outurl);
+                if (!URLEdt.Text.Equals(outurl))
+                    URLEdt.Text = outurl;
+                if (YACRSSession.Instance.ServerOK)
                 {
-                    string outurl;
-                    messageEdt.Text = YACRSSession.Instance.SetAndCheckURL(URLEdt.Text, out outurl);
-                    if (!URLEdt.Text.Equals(outurl))
-                        URLEdt.Text = outurl;
+                    OKBtn.Enabled = true;
                 }
-                UsernameEdt.Text = Properties.Settings.Default.username;// "http://localhost/yacrs/yacrs/";
             }
         }
 
         private void OKBtn_Click(object sender, EventArgs e)
         {
             messageEdt.ForeColor = Color.Black;
-            messageEdt.Text = "Logging in";
-            if (YACRSSession.Instance.AttemptLogin(UsernameEdt.Text, PasswordEdt.Text))
+            messageEdt.Text = "Reqesting login code";
+            string url = YACRSSession.Instance.InitiateLogin();
             {
-                DialogResult = DialogResult.OK;
-                if (!File.Exists(configPath))
-                {
-                    Properties.Settings.Default.username = UsernameEdt.Text;
-                    Properties.Settings.Default.Save();
-                }
-                Close();
+                //MessageBox.Show(url);
+                System.Diagnostics.Process.Start(url);
+                ticks = 0;
+                loginTimer.Start();
             }
-            else
-            {
-                messageEdt.BackColor = SystemColors.Control;
-                messageEdt.ForeColor = Color.Red;
-                messageEdt.Text = YACRSSession.Instance.LastError;
-                PasswordEdt.Text = "";
-            }
+
+            //if (YACRSSession.Instance.AttemptLogin(UsernameEdt.Text, PasswordEdt.Text))
+            //{
+            //    DialogResult = DialogResult.OK;
+            //    if (!File.Exists(configPath))
+            //    {
+            //        Properties.Settings.Default.username = UsernameEdt.Text;
+            //        Properties.Settings.Default.Save();
+            //    }
+            //    Close();
+            //}
+            //else
+            //{
+            //    messageEdt.BackColor = SystemColors.Control;
+            //    messageEdt.ForeColor = Color.Red;
+            //    messageEdt.Text = YACRSSession.Instance.LastError;
+            //}
         }
 
         private void CancelBtn_Click(object sender, EventArgs e)
@@ -74,40 +85,51 @@ namespace YACRScontrol
             {
                 Properties.Settings.Default.ServerURL = URLEdt.Text;
                 Properties.Settings.Default.Save();
-            }
-        }
-
-        private void OnUsernameChanged(object sender, EventArgs e)
-        {
-            if ((UsernameEdt.Text.Length > 0) && (PasswordEdt.Text.Length > 0))
                 OKBtn.Enabled = true;
-            else
-                OKBtn.Enabled = false;
+            }
         }
 
         private void OnPasswordChanged(object sender, EventArgs e)
         {
-            if ((UsernameEdt.Text.Length > 0) && (PasswordEdt.Text.Length > 0))
                 OKBtn.Enabled = true;
-            else
-                OKBtn.Enabled = false;
         }
 
         private void OnActivated(object sender, EventArgs e)
         {
             if (YACRSSession.Instance.ServerOK)
             {
-                if (UsernameEdt.Text.Length > 0)
-                {
-                    PasswordEdt.Focus();
-                }
-                else
-                {
-                    UsernameEdt.Focus();
-                }
+                    OKBtn.Focus();
             }
             else
                 URLEdt.Focus();
+        }
+
+        private void loginTimer_Tick(object sender, EventArgs e)
+        {
+            string msg;
+            ticks++;
+            if(ticks==300)
+            {
+                messageEdt.Text = "Timed out";
+                loginTimer.Stop();
+            }
+            if(YACRSSession.Instance.CheckLoginStatus(out msg))
+            {
+                loginTimer.Stop();
+                messageEdt.Text = msg;
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+            else
+            {
+                messageEdt.Text = msg;
+            }
+        }
+
+        private void URLEdt_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Return)
+                SendKeys.Send("{TAB}");
         }
     }
 }

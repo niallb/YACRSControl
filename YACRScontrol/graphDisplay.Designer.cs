@@ -33,6 +33,7 @@
             this.quWebInfo = new System.Windows.Forms.WebBrowser();
             this.compareChk = new System.Windows.Forms.CheckBox();
             this.titleLabel = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // backBtn
@@ -59,15 +60,16 @@
             // 
             // quWebInfo
             // 
-            this.quWebInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.quWebInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.quWebInfo.Location = new System.Drawing.Point(13, 29);
             this.quWebInfo.MinimumSize = new System.Drawing.Size(20, 20);
             this.quWebInfo.Name = "quWebInfo";
             this.quWebInfo.Size = new System.Drawing.Size(737, 375);
             this.quWebInfo.TabIndex = 2;
             this.quWebInfo.Visible = false;
+            this.quWebInfo.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.quWebInfo_Navigating);
             // 
             // compareChk
             // 
@@ -89,12 +91,22 @@
             this.titleLabel.Size = new System.Drawing.Size(0, 13);
             this.titleLabel.TabIndex = 4;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(18, 3);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(35, 13);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "label1";
+            // 
             // graphDisplay
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(762, 435);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.titleLabel);
             this.Controls.Add(this.compareChk);
             this.Controls.Add(this.quWebInfo);
@@ -102,10 +114,10 @@
             this.Controls.Add(this.backBtn);
             this.Name = "graphDisplay";
             this.Text = "graphDisplay";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.graphDisplay_FormClosing);
             this.Load += new System.EventHandler(this.OnLoad);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.OnPaint);
             this.Move += new System.EventHandler(this.graphDisplay_Resize);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.graphDisplay_FormClosing);
             this.Resize += new System.EventHandler(this.graphDisplay_Resize);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -119,6 +131,7 @@
         private System.Windows.Forms.WebBrowser quWebInfo;
         private System.Windows.Forms.CheckBox compareChk;
         private System.Windows.Forms.Label titleLabel;
+        private System.Windows.Forms.Label label1;
 
     }
 }

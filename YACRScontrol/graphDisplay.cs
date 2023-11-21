@@ -90,6 +90,7 @@ namespace YACRScontrol
                         quWebInfo.Navigate(YACRSSession.Instance.baseURL + "wordwall.php?qiID=" + cqid.ToString());
                     else
                         quWebInfo.Navigate(YACRSSession.Instance.baseURL + "displayResponses.php?sessionID=" + YACRSSession.Instance.Detail.M_id.ToString() + "&qiID=" + cqid.ToString() + "&width=" + quWebInfo.Width.ToString() + "&height=" + quWebInfo.Height.ToString(), null, null, "Cookie: " + YACRSSession.Instance.loginCookie + "\r\n");
+                    //# Cookie name is missing so it doesn't work should have patrama 4 as "Cookie: yacrs_login=" + YACRSSession.Instance.loginCookie + "\r\n"
                 }
                 else
                 {
@@ -267,5 +268,11 @@ namespace YACRScontrol
         {
             Invalidate();
         }
+
+        private void quWebInfo_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        {
+            label1.Text = e.Url.ToString();
+        }
+
     }
 }

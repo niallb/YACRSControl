@@ -171,6 +171,55 @@ namespace YACRScontrol
             }
         }
 
+
+
+        public bool CheckLoginStatus(out string message)
+        {
+            NameValueCollection formData = new NameValueCollection();
+            formData.Add("action", "loginstatus");
+            string xml = httpRequest(formData, null, null, null);
+            //MessageBox.Show(xml);
+            cls_YACRSResponse r = responseParser.parseIn(xml);
+            if (r == null)
+            {
+                lastError = xml;
+                message = "XML parse error.";  
+                //MessageBox.Show(xml);
+                return true;
+            }
+            else if (r.M_error.Count > 0)
+            {
+                lastError = r.M_error[0];
+                message = r.M_error[0];
+                return false;
+            }
+            else
+            {
+                courseIdSupported = r.M_data.M_serverInfo.M_courseIdSupported;
+                availableQus = r.M_data.M_serverInfo.M_globalQuType;
+                message = "Login successful";
+                return true;
+            }
+        }
+
+        public string InitiateLogin()
+        {
+            NameValueCollection formData = new NameValueCollection();
+            formData.Add("action", "requestlogin");
+            string xml = httpRequest(formData, null, null, null);
+            //MessageBox.Show(xml);
+            cls_YACRSResponse r = responseParser.parseIn(xml);
+            if ((r == null)||(r.M_error.Count != 1))
+            {
+                lastError = xml;
+                return "";
+            }
+            else
+            {
+                return r.M_error[0];
+            }
+        }
+
         public List<cls_sessionInfo> getSessionList()
         {
             Dictionary<int, string> output = new Dictionary<int, string>();
@@ -350,6 +399,11 @@ namespace YACRScontrol
             string buffer = "";
             try
             {
+                // Added 20200824 - Needed for more modern security setting (learn, but not classresponse yet.) - NSFB
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                // Use SecurityProtocolType.Ssl3 if needed for compatibility reasons
+
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(serverURL);
                 request.AllowAutoRedirect = true;
